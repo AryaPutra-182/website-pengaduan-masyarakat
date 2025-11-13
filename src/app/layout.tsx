@@ -1,6 +1,7 @@
-// src/app/layout.tsx  <-- (LANGSUNG DI DALAM APP)
+// src/app/layout.tsx
 import type { Metadata } from 'next';
-import './globals.css'; // Pastikan path ini benar
+import './globals.css';
+import { Toaster } from 'react-hot-toast'; // ✅ Tambahkan ini
 
 export const metadata: Metadata = {
   title: 'LaporPak - Layanan Pengaduan Masyarakat',
@@ -14,8 +15,38 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id">
-      {/* Body ini HARUS KOSONG agar tidak tumpang tindih */}
-      <body>{children}</body>
+      <body className="antialiased bg-gray-50">
+        {/* Semua konten halaman */}
+        {children}
+
+        {/* ✅ Toaster untuk notifikasi global */}
+       <Toaster
+  position="top-center"
+  toastOptions={{
+    success: {
+      style: {
+        background: '#4CAF50',
+        color: '#fff',
+        fontWeight: '600',
+        borderRadius: '8px',
+      },
+      iconTheme: {
+        primary: '#fff',
+        secondary: '#4CAF50',
+      },
+    },
+    error: {
+      style: {
+        background: '#f44336',
+        color: '#fff',
+        fontWeight: '600',
+        borderRadius: '8px',
+      },
+    },
+  }}
+/>
+
+      </body>
     </html>
   );
 }

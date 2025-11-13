@@ -32,7 +32,6 @@ export default function AdminDashboardPage() {
   if (isLoading) { return <p>Loading data statistik...</p>; }
   if (error) { return <p className="text-red-600">Error: {error}</p>; }
 
-  // === PERUBAHAN UTAMA: LAYOUT GRID DINAMIS ===
   // Tentukan kelas grid berdasarkan role
   const gridColsClass = userRole === 'master_admin' 
       ? 'grid-cols-1 gap-6 md:grid-cols-3' // 3 kolom untuk Master Admin

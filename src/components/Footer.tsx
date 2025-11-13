@@ -14,7 +14,7 @@ const Footer = () => {
             <h3 className="mb-4 text-3xl font-bold text-white md:text-4xl"> {/* Ukuran font & warna logo */}
               LaporPak
             </h3>
-            <p className="mb-1 text-sm font-light md:text-base">Kecamatan Jumo</p> {/* Font lebih tipis */}
+            <p className="mb-1 text-sm font-light md:text-base">Kecamatan Junrejo</p> {/* Font lebih tipis */}
             <p className="mb-1 text-sm font-light md:text-base">Telp: (123) 456-7890</p>
             <p className="mb-1 text-sm font-light md:text-base">Fax: (123) 456-7891</p>
             <p className="text-sm font-light md:text-base">Email: info@laporpak.go.id</p>
