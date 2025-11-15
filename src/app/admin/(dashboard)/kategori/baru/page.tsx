@@ -1,129 +1,139 @@
 "use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-const API_BASE_URL = 'http://localhost:5000';
-
-// Style reusable baru (adaptasi)
-const inputStyle = "w-full px-5 py-3 border border-gray-300 rounded-full text-base text-gray-700 focus:outline-none focus:border-[#0060A9] focus:ring-1 focus:ring-[#0060A9]"; // Input Kapsul
-const buttonBlueCapsule = "rounded-full bg-[#0060A9] px-8 py-2.5 text-sm font-semibold text-white transition hover:bg-[#004a80] disabled:bg-gray-400"; // Tombol biru kapsul
+const API_BASE_URL = "http://localhost:5000";
 
 export default function TambahKategoriPage() {
-    const router = useRouter();
-    const [namaKategori, setNamaKategori] = useState('');
-    // Hapus state deskripsi
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
-    // Fungsi handleSubmit (Hanya kirim 'nama')
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setError(null);
+  const [nama, setNama] = useState("");
+  const [deskripsi, setDeskripsi] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-        const token = localStorage.getItem('adminToken');
-        if (!token) {
-            setError("Sesi tidak valid."); // Tambahkan pesan error
-            setIsLoading(false);
-            // Pertimbangkan redirect: router.replace('/admin/login');
-            return;
-        }
+  // Cek token sebelum render
+  useEffect(() => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) router.push("/admin/login");
+  }, [router]);
 
-        // Data hanya 'nama' sesuai API
-        const formData = {
-            nama: namaKategori,
-        };
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/kategori`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(formData),
-            });
-            const result = await response.json();
-            if (result.success) {
-                alert('Kategori baru berhasil ditambahkan!');
-                router.push('/admin/kategori'); // Kembali ke daftar
-            } else {
-                // Tampilkan pesan error dari API
-                throw new Error(result.message || 'Gagal menambahkan kategori');
-            }
-        } catch (err: any) {
-            setError(err.message || 'Tidak dapat terhubung ke server.');
-            console.error(err);
-            if (err.message?.includes('Unauthorized') || err.message?.includes('Forbidden')) {
-                // Handle token invalid
-                 setError("Sesi tidak valid atau hak akses ditolak.");
-                 // Pertimbangkan redirect otomatis ke login
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    try {
+      const token = localStorage.getItem("adminToken");
 
-    return (
-        // Wrapper relatif untuk pola
-        <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]"> {/* Center content */}
-            {/* ... (Placeholder Pola Dekoratif) ... */}
+      if (!token) {
+        setError("Anda belum login sebagai admin.");
+        return;
+      }
 
-            {/* Kartu Form Putih (Terpusat) */}
-            <div className="relative z-10 w-full max-w-lg rounded-xl border border-gray-200 bg-white p-6 shadow-lg md:p-10"> {/* max-w-lg */}
-                {/* Judul Form */}
-                <h2 className="mb-8 text-center text-xl font-bold text-[#004A80] md:text-2xl">
-                    Tambah Data Kategori
-                </h2>
+      // FIX endpoint yang benar
+      const response = await fetch(`${API_BASE_URL}/api/kategori`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          nama_kategori: nama,
+          deskripsi
+        })
+      });
 
-                {/* Form */}
-                <form className="space-y-6" onSubmit={handleSubmit}>
-                    {/* Field Nama Kategori */}
-                    <div>
-                        {/* Label tidak ada di desain, pakai placeholder */}
-                        <input
-                            type="text"
-                            id="nama_kategori"
-                            className={inputStyle} // Style Kapsul
-                            placeholder="Nama Kategori"
-                            value={namaKategori}
-                            onChange={(e) => setNamaKategori(e.target.value)}
-                            required
-                        />
-                    </div>
+      const result = await response.json();
 
-                    {/* Hapus Field Deskripsi */}
+      // Backend kategori TIDAK punya field success
+      if (!response.ok) {
+        setError(result.message || "Gagal menambah kategori");
+        return;
+      }
 
-                    {/* Tampilkan Error */}
-                    {error && (
-                        <div className="text-center text-sm text-red-600">
-                            {error}
-                        </div>
-                    )}
+      router.push("/admin/kategori");
 
-                    {/* Tombol Tambah (Biru Kapsul, di dalam form) */}
-                    <div className="pt-2 text-center">
-                        <button
-                            type="submit"
-                            className={buttonBlueCapsule}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? 'Menyimpan...' : 'Tambah'}
-                        </button>
-                    </div>
-                </form>
-            </div>
+    } catch (err) {
+      setError("Tidak dapat terhubung ke server.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            {/* Tombol Kembali (di luar Card) */}
-            <div className="mt-6 w-full max-w-lg text-right"> {/* Samakan lebar & rata kanan */}
-                <Link href="/admin/kategori">
-                    <button className={buttonBlueCapsule}>
-                        Kembali
-                    </button>
-                </Link>
-            </div>
+  return (
+    <main className="pt-28 px-4 flex justify-center">
+      <div className="bg-white shadow-lg border rounded-xl p-8 w-[380px]">
+
+        <h2 className="text-center text-xl font-bold text-[#004A80] mb-6">
+          Tambah Data Kategori
+        </h2>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+
+          {/* INPUT NAMA */}
+          <div>
+            <label className="text-sm font-semibold text-[#004A80] block mb-1">
+              Nama Kategori
+            </label>
+            <input
+              type="text"
+              placeholder="Masukkan nama kategori"
+              value={nama}
+              onChange={(e) => setNama(e.target.value)}
+              className="w-full px-4 py-2 text-sm text-black bg-white
+                         border border-[#8bb2cc] rounded-md
+                         placeholder:text-[#6c8391] outline-none
+                         focus:border-[#0060A9] focus:ring-2 focus:ring-[#0060A9]/40"
+              required
+            />
+          </div>
+
+          {/* INPUT DESKRIPSI */}
+          <div>
+            <label className="text-sm font-semibold text-[#004A80] block mb-1">
+              Deskripsi
+            </label>
+            <textarea
+              placeholder="Tuliskan deskripsi kategori"
+              value={deskripsi}
+              onChange={(e) => setDeskripsi(e.target.value)}
+              className="w-full px-4 py-2 text-sm text-black bg-white
+                         border border-[#8bb2cc] rounded-md h-28
+                         placeholder:text-[#6c8391] outline-none
+                         focus:border-[#0060A9] focus:ring-2 focus:ring-[#0060A9]/40"
+              required
+            ></textarea>
+          </div>
+
+          {/* ERROR */}
+          {error && (
+            <p className="text-center text-red-600 text-sm">{error}</p>
+          )}
+
+          {/* BUTTON TAMBAH */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#0060A9] text-white py-2 rounded-full text-sm 
+                       hover:bg-[#004A80] transition font-semibold"
+          >
+            {loading ? "Memproses..." : "Tambah"}
+          </button>
+        </form>
+
+        {/* BUTTON KEMBALI */}
+        <div className="text-center mt-4">
+          <Link href="/admin/kategori">
+            <button className="bg-[#0060A9] text-white px-6 py-1.5 rounded-full text-sm hover:bg-[#004A80] transition">
+              Kembali
+            </button>
+          </Link>
         </div>
-    );
+
+      </div>
+    </main>
+  );
 }

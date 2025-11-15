@@ -1,109 +1,165 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import Swal from "sweetalert2";
 
-const API_BASE_URL = 'http://localhost:5000';
 
-// Tipe data Kategori
+const API_BASE_URL = "http://localhost:5000";
+
 interface Kategori {
   id: number;
-  nama: string;
-  deskripsi?: string;
+  nama_kategori: string;
 }
 
-// Hapus Komponen KategoriCard (tidak dipakai lagi)
-
 export default function DataKategoriPage() {
-    const router = useRouter();
-    const [kategoriList, setKategoriList] = useState<Kategori[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+  const [kategoriList, setKategoriList] = useState<Kategori[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    // Fungsi Fetch data (logika tetap sama)
-    const fetchKategori = async () => { /* ... (kode fetch GET /api/kategori Anda) ... */ setIsLoading(true); setError(null); const token = localStorage.getItem('adminToken'); try { const response = await fetch(`${API_BASE_URL}/api/kategori`); const result = await response.json(); if (result.success && result.data?.kategori) { setKategoriList(result.data.kategori); } else { throw new Error(result.message || 'Gagal ambil data'); } } catch (err: any) { setError(err.message || 'Server error.'); console.error(err); } finally { setIsLoading(false); } };
+  // ============================
+  // GET DATA KATEGORI
+  // ============================
+  const fetchKategori = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${API_BASE_URL}/api/kategori`, {
+        cache: "no-store",
+      });
 
-    // useEffect (logika tetap sama)
-    useEffect(() => { /* ... (kode useEffect Anda untuk cek token & fetchKategori) ... */ const token = localStorage.getItem('adminToken'); if (!token) { /* redirect */ setIsLoading(false); return; } fetchKategori(); // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+      const result = await response.json();
 
-    // Fungsi Hapus Kategori (logika tetap sama)
-    const handleDelete = async (id: number) => { /* ... (kode fetch DELETE /api/admin/kategori/{id} Anda) ... */ if (!confirm(`Yakin hapus ID: ${id}?`)) return; const token = localStorage.getItem('adminToken'); if (!token) { /* redirect */ return; } setError(null); try { const response = await fetch(`${API_BASE_URL}/api/admin/kategori/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } }); const result = await response.json(); if (result.success) { alert('Berhasil dihapus.'); fetchKategori(); } else { throw new Error(result.message || `Gagal hapus ID ${id}`); } } catch (err: any) { setError(err.message || 'Server error.'); console.error(err); if (err.message.includes('Unauthorized')) { /* handle logout */ } } };
+      if (response.ok && result.success) {
+        setKategoriList(result.data.kategori || []);
+      } else {
+        setError(result.message || "Gagal mengambil data kategori.");
+      }
+    } catch (err) {
+      setError("Tidak dapat terhubung ke server.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    return (
-        // Wrapper relatif untuk pola
-        <div className="relative">
-            {/* ... (Placeholder Pola Dekoratif) ... */}
+  useEffect(() => {
+    fetchKategori();
+  }, []);
 
-            {/* Kartu Tabel Putih (Style dari data-kategori.html) */}
-            <div className="relative z-10 rounded-xl bg-white p-6 shadow-lg md:p-8"> {/* Padding disesuaikan */}
-                {/* Judul Halaman */}
-                <h2 className="mb-6 text-center text-xl font-bold text-[#004A80] md:text-2xl">
-                    Data Kategori
-                </h2>
+  // ============================
+  // DELETE KATEGORI
+  // ============================
+const handleDelete = async (id: number, nama: string) => {
+  const token = localStorage.getItem("adminToken");
+  if (!token) {
+    Swal.fire("Sesi Habis", "Silakan login ulang.", "warning");
+    return;
+  }
 
-                {isLoading && <p className="text-center text-gray-500">Loading data kategori...</p>}
-                {error && <p className="text-center text-red-600">Error: {error}</p>}
+  const confirm = await Swal.fire({
+    title: "Hapus Kategori?",
+    text: `Kategori "${nama}" akan dihapus secara permanen.`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Hapus",
+    cancelButtonText: "Batal",
+  });
 
-                {/* Tabel Kategori */}
-                {!isLoading && !error && (
-                    <div className="mb-6 overflow-x-auto"> {/* Margin bawah sebelum tombol tambah */}
-                        <table className="w-full min-w-[500px] text-left"> {/* Min-width */}
+  if (!confirm.isConfirmed) return;
 
-                            {/* Header Tabel (Biru Tua, Rounded Top) */}
-                            <thead className="bg-[#004a80] text-white">
-                                <tr>
-                                    <th className="rounded-tl-lg p-3 px-4 text-sm font-semibold">No</th>
-                                    <th className="p-3 px-4 text-sm font-semibold">Kategori</th>
-                                    <th className="rounded-tr-lg p-3 px-4 text-sm font-semibold text-right">Aksi</th> {/* Rata kanan */}
-                                </tr>
-                            </thead>
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/kategori/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-                            {/* Body Tabel */}
-                            <tbody>
-                                {kategoriList.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={3} className="p-4 text-center text-gray-500">Belum ada data kategori.</td>
-                                    </tr>
-                                ) : (
-                                    kategoriList.map((kategori, index) => (
-                                        <tr key={kategori.id} className="border-b border-gray-100 last:border-b-0">
-                                            {/* Data (Teks Biru Muda) */}
-                                            <td className="p-3 px-4 text-sm font-medium text-[#0060A9]">{index + 1}</td>
-                                            <td className="p-3 px-4 text-sm font-medium text-[#0060A9]">{kategori.nama}</td>
-                                            {/* Kolom Aksi (Tombol Edit Biru, Hapus Merah) */}
-                                            <td className="p-3 px-4 text-right whitespace-nowrap"> {/* Rata kanan */}
-                                                <Link href={`/admin/kategori/edit/${kategori.id}`}>
-                                                    <button className="mr-2 rounded-full bg-[#0060A9] px-5 py-1.5 text-xs font-semibold text-white transition hover:bg-[#004a80]"> {/* Edit Biru */}
-                                                        Edit
-                                                    </button>
-                                                </Link>
-                                                <button
-                                                    onClick={() => handleDelete(kategori.id)}
-                                                    className="rounded-full bg-red-600 px-5 py-1.5 text-xs font-semibold text-white transition hover:bg-red-700"> {/* Hapus Merah */}
-                                                    Hapus
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+    const result = await res.json();
 
-                {/* Tombol Tambah Kategori (Biru Kapsul, Rata Kanan) */}
-                {!isLoading && ( // Sembunyikan tombol jika loading
-                     <div className="text-right">
-                        <Link href="/admin/kategori/baru">
-                            <button className="rounded-full bg-[#0060A9] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#004a80]">
-                                Tambah Kategori
-                            </button>
+    if (!result.success) {
+      Swal.fire("Gagal", result.message || "Gagal menghapus kategori.", "error");
+      return;
+    }
+
+    await Swal.fire("Berhasil", "Kategori berhasil dihapus.", "success");
+
+    // WAIT agar tabel sempat update
+    await fetchKategori();
+
+  } catch (error) {
+    Swal.fire("Error", "Server tidak merespons.", "error");
+  }
+};
+
+
+  return (
+    <main className="pt-20 px-4 md:px-10">
+      <div className="max-w-4xl mx-auto bg-white shadow-lg border rounded-xl p-8">
+        
+        <h2 className="text-center text-2xl font-bold text-[#004A80] mb-6">
+          Data Kategori
+        </h2>
+
+        {isLoading && <p className="text-center text-gray-600">Memuat data...</p>}
+        {error && <p className="text-center text-red-600">Error: {error}</p>}
+
+        {!isLoading && !error && (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-[#004A80] text-white text-sm">
+                  <th className="p-3 text-left rounded-tl-xl">No</th>
+                  <th className="p-3 text-left">Kategori</th>
+                  <th className="p-3 text-right rounded-tr-xl">Aksi</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {kategoriList.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="p-4 text-center text-gray-500">
+                      Belum ada kategori.
+                    </td>
+                  </tr>
+                ) : (
+                  kategoriList.map((kategori, index) => (
+                    <tr key={kategori.id} className="border-b text-[#0060A9]">
+                      <td className="p-3">{index + 1}</td>
+                      <td className="p-3">{kategori.nama_kategori}</td>
+                      <td className="p-3 text-right space-x-2">
+
+                        <Link href={`/admin/kategori/edit/${kategori.id}`}>
+                          <button className="bg-[#0060A9] px-5 py-1.5 rounded-full text-xs text-white hover:bg-[#004A80] transition">
+                            Edit
+                          </button>
                         </Link>
-                    </div>
+
+                        <button
+                          onClick={() => handleDelete(kategori.id, kategori.nama_kategori)}
+                          className="bg-red-600 px-5 py-1.5 rounded-full text-xs text-white hover:bg-red-700 transition"
+                        >
+                          Hapus
+                        </button>
+
+                      </td>
+                    </tr>
+                  ))
                 )}
-            </div>
-        </div>
-    );
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {!isLoading && (
+          <div className="text-right mt-6">
+            <Link href="/admin/kategori/baru">
+              <button className="bg-[#0060A9] px-6 py-2.5 rounded-full text-sm text-white hover:bg-[#004A80] transition">
+                Tambah Kategori
+              </button>
+            </Link>
+          </div>
+        )}
+      </div>
+    </main>
+  );
 }
