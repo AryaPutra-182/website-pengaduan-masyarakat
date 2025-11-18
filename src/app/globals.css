@@ -1,10 +1,14 @@
 @import "tailwindcss";
 
+/* --------------------------
+   WARNA DASAR
+--------------------------- */
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
 
+/* Tema Tailwind Inline */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -12,19 +16,25 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* DARK MODE */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
 }
+
+/* Smooth Scroll */
 html {
   scroll-behavior: smooth;
 }
 
-
+/* --------------------------
+   FIX: JANGAN PAKAI "background"
+   karena override semua Tailwind bg-*
+--------------------------- */
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }

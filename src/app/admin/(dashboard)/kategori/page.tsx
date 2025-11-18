@@ -77,7 +77,7 @@ const handleDelete = async (id: number, nama: string) => {
     const result = await res.json();
 
     if (!result.success) {
-      Swal.fire("Gagal", result.message || "Gagal menghapus kategori.", "error");
+      Swal.fire("Gagal", result.message || "Gagal menghapus kategori  .", "error");
       return;
     }
 
@@ -86,7 +86,7 @@ const handleDelete = async (id: number, nama: string) => {
     // WAIT agar tabel sempat update
     await fetchKategori();
 
-  } catch (error) {
+  } catch (error) { 
     Swal.fire("Error", "Server tidak merespons.", "error");
   }
 };

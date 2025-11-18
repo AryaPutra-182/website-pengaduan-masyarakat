@@ -19,7 +19,7 @@
   interface AdminUser {
     id: number;
     nama_lengkap: string;
-    role: "admin" | "master_admin";
+    role: "admin" | "master_admin" | "pimpinan";
   }
 
   interface StatistikLaporan {

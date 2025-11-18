@@ -1,5 +1,7 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+// src/app/(public)/layout.tsx
+
+"use client"; // Diperlukan karena AuthProvider & Navbar kemungkinan adalah Client Component
+
 import '../globals.css'; 
 import Navbar from '@/components/Navbar'; 
 import Footer from '@/components/Footer';
@@ -7,7 +9,8 @@ import Footer from '@/components/Footer';
 // 1. IMPORT AUTHPROVIDER
 import { AuthProvider } from '@/context/AuthContext';
 
-const inter = Inter({ subsets: ['latin'] });
+// 2. HAPUS 'Inter' FONT DARI SINI (sudah ada di RootLayout)
+// 3. HAPUS <html> DAN <body> DARI SINI
 
 export default function PublicLayout({
   children,
@@ -15,15 +18,14 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id"> 
-      <body className={inter.className}>
-        {/* 2. BUNGKUS SEMUANYA DENGAN AUTHPROVIDER */}
-        <AuthProvider>
-          <Navbar /> 
-          <main>{children}</main>
-          <Footer /> 
-        </AuthProvider>
-      </body>
-    </html>
+    // 4. Gunakan React Fragment (<>) atau <div>, BUKAN <html>/<body>
+    <>
+      {/* 5. BUNGKUS SEMUANYA DENGAN AUTHPROVIDER */}
+      <AuthProvider>
+        <Navbar /> 
+        <main>{children}</main>
+        <Footer /> 
+      </AuthProvider>
+    </>
   );
 }

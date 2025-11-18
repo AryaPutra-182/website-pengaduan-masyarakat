@@ -18,74 +18,77 @@ const rwList = ["01", "02", "05"];
 export default function RegisterPage() {
   const router = useRouter();
 
-  const [namaLengkap, setNamaLengkap] = useState("");
-  const [nik, setNik] = useState("");
-  const [noHp, setNoHp] = useState("");
-  const [dusun, setDusun] = useState("");
-  const [rt, setRt] = useState("");
-  const [rw, setRw] = useState("");
-  const [alamatDetail, setAlamatDetail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    nama_lengkap: "",
+    nik: "",
+    no_hp: "",
+    username: "",
+    password: "",
+    dusun: "",
+    rt: "",
+    rw: "",
+    alamatDetail: "",
+  });
+
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
 
-    const alamatGabungan = `Dusun ${dusun}, RT ${rt}, RW ${rw}, ${alamatDetail}`;
+    // Gabungkan lokasi
+    const alamat = `Dusun ${formData.dusun}, RT ${formData.rt}, RW ${formData.rw}, ${formData.alamatDetail}`;
 
-    const formData = {
-      nama_lengkap: namaLengkap,
-      nik,
-      no_hp: noHp,
-      alamat: alamatGabungan,
-      username,
-      password,
+    // Payload sesuai yang diterima backend
+    const payload = {
+      nama_lengkap: formData.nama_lengkap,
+      nik: formData.nik,
+      no_hp: formData.no_hp,
+      alamat,
+      username: formData.username,
+      password: formData.password,
     };
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        await Swal.fire({
+        Swal.fire({
           icon: "success",
           title: "Registrasi Berhasil 🎉",
-          text: "Anda akan diarahkan ke halaman login...",
+          text: "Anda akan diarahkan ke halaman login.",
           showConfirmButton: false,
           timer: 2000,
         });
 
-        router.push("/login");
+        setTimeout(() => router.push("/login"), 2000);
       } else {
-        const message =
-          result?.errors?.[0]?.msg || result?.message || "Registrasi gagal.";
-
-        setError(message);
-
+        const message = result?.errors?.[0]?.msg || result?.message;
         Swal.fire({
           icon: "error",
           title: "Registrasi Gagal!",
-          text: message,
+          text: message || "Silakan cek data yang dimasukkan.",
         });
       }
-    } catch (err) {
-      console.error(err);
-      setError("Tidak dapat terhubung ke server.");
-
+    } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "Koneksi Error!",
+        title: "Server Error",
         text: "Tidak dapat terhubung ke server.",
       });
+      console.error("🚨 Register error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -98,7 +101,7 @@ export default function RegisterPage() {
     >
       <div className="absolute inset-0 backdrop-blur-md bg-black/10"></div>
 
-      <main className="z-10 w-full max-w-md rounded-2xl bg-white p-8 shadow-xl md:p-10 mt-24">
+      <main className="z-10 w-full max-w-md rounded-2xl bg-white p-8 shadow-xl mt-24">
         <form onSubmit={handleSubmit}>
           <h1 className="mb-1 text-center text-2xl font-bold text-[#0060A9]">
             DAFTAR
@@ -110,140 +113,141 @@ export default function RegisterPage() {
             </Link>
           </p>
 
-          {/* NAMA */}
+          {/* Nama Lengkap */}
           <div className="mb-4">
             <label className={labelStyle}>Nama Lengkap*</label>
             <input
               type="text"
+              name="nama_lengkap"
               className={inputStyle}
               placeholder="Nama Lengkap"
-              value={namaLengkap}
-              onChange={(e) => setNamaLengkap(e.target.value)}
               required
+              value={formData.nama_lengkap}
+              onChange={handleChange}
             />
           </div>
 
           {/* NIK */}
           <div className="mb-4">
-            <label className={labelStyle}>NIK*</label>
+            <label className={labelStyle}>NIK (16 digit)*</label>
             <input
               type="text"
+              name="nik"
               className={inputStyle}
-              placeholder="16 digit NIK"
+              placeholder="Ex: 357XXXXXXX"
+              required
               minLength={16}
               maxLength={16}
-              value={nik}
-              onChange={(e) => setNik(e.target.value)}
-              required
+              value={formData.nik}
+              onChange={handleChange}
             />
           </div>
 
-          {/* NO HP */}
+          {/* No HP */}
           <div className="mb-4">
-            <label className={labelStyle}>Nomor Telepon*</label>
+            <label className={labelStyle}>Nomor HP*</label>
             <input
               type="tel"
+              name="no_hp"
               className={inputStyle}
-              placeholder="Ex: 081234567890"
-              value={noHp}
-              onChange={(e) => setNoHp(e.target.value)}
+              placeholder="Contoh: 0812345678"
               required
+              value={formData.no_hp}
+              onChange={handleChange}
             />
           </div>
 
-          {/* ALAMAT DROPDOWN */}
+          {/* Alamat */}
           <div className="mb-4">
             <label className={labelStyle}>Alamat*</label>
             <div className="grid grid-cols-3 gap-3 mb-3">
-
               <select
+                name="dusun"
                 className={inputStyle}
-                value={dusun}
-                onChange={(e) => setDusun(e.target.value)}
                 required
+                value={formData.dusun}
+                onChange={handleChange}
               >
                 <option value="">Dusun</option>
-                {dusunList.map((d, i) => (
-                  <option key={i} value={d}>
-                    {d}
+                {dusunList.map((dusun) => (
+                  <option key={dusun} value={dusun}>
+                    {dusun}
                   </option>
                 ))}
               </select>
 
               <select
+                name="rt"
                 className={inputStyle}
-                value={rt}
-                onChange={(e) => setRt(e.target.value)}
                 required
+                value={formData.rt}
+                onChange={handleChange}
               >
                 <option value="">RT</option>
-                {rtList.map((r, i) => (
-                  <option key={i} value={r}>
-                    {r}
+                {rtList.map((rt) => (
+                  <option key={rt} value={rt}>
+                    {rt}
                   </option>
                 ))}
               </select>
 
               <select
+                name="rw"
                 className={inputStyle}
-                value={rw}
-                onChange={(e) => setRw(e.target.value)}
                 required
+                value={formData.rw}
+                onChange={handleChange}
               >
                 <option value="">RW</option>
-                {rwList.map((r, i) => (
-                  <option key={i} value={r}>
-                    {r}
+                {rwList.map((rw) => (
+                  <option key={rw} value={rw}>
+                    {rw}
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* DETAIL ALAMAT */}
             <input
               type="text"
+              name="alamatDetail"
               className={inputStyle}
-              placeholder="Contoh: Jl. Cempaka No. 15"
-              value={alamatDetail}
-              onChange={(e) => setAlamatDetail(e.target.value)}
+              placeholder="Contoh: Jl. Cempaka No. 5"
               required
+              value={formData.alamatDetail}
+              onChange={handleChange}
             />
           </div>
 
-          {/* USERNAME */}
+          {/* Username */}
           <div className="mb-4">
             <label className={labelStyle}>Username*</label>
             <input
               type="text"
+              name="username"
               className={inputStyle}
               placeholder="Username login"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
               required
+              value={formData.username}
+              onChange={handleChange}
             />
           </div>
 
-          {/* PASSWORD */}
+          {/* Password */}
           <div className="mb-6">
             <label className={labelStyle}>Password*</label>
             <input
               type="password"
+              name="password"
               className={inputStyle}
               placeholder="Minimal 8 karakter"
               minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               required
+              value={formData.password}
+              onChange={handleChange}
             />
           </div>
 
-          {error && (
-            <div className="mb-4 text-center text-red-600 text-sm">
-              {error}
-            </div>
-          )}
-
-          {/* BUTTON */}
+          {/* Button */}
           <button
             type="submit"
             disabled={isLoading}
@@ -256,3 +260,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+    

@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation'; // Import usePathname
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// Import ikon Font Awesome yang sesuai
-import { faThLarge, faFileAlt, faTags, faUsersCog, faUserShield, faChartLine, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+// Import ikon Font Awesome yang sesuai, TAMBAHKAN faBullhorn
+import { faThLarge, faFileAlt, faTags, faUsersCog, faUserShield, faChartLine, faSignOutAlt, faBullhorn } from '@fortawesome/free-solid-svg-icons';
 
-interface AdminUser { id: number; nama: string; role: 'admin' | 'master_admin'; }
+interface AdminUser { id: number; nama: string; role: 'admin' | 'master_admin'| 'pimpinan'; }
 
 // Komponen Link Sidebar Helper
 const SidebarLink = ({ href, icon, label, isActive }: { href: string; icon: any; label: string; isActive: boolean }) => (
@@ -50,7 +50,6 @@ const Sidebar = () => {
         router.replace('/admin/login');
     };
 
-    // Jangan render jika role belum siap (opsional)
     // if (!userRole) return <aside className="h-screen w-64 flex-shrink-0 bg-[#007BCC]"></aside>;
 
     return (
@@ -64,6 +63,10 @@ const Sidebar = () => {
                     {/* Gunakan Komponen SidebarLink */}
                     <SidebarLink href="/admin/dashboard" icon={faThLarge} label="DASHBOARD" isActive={pathname === '/admin/dashboard'} />
                     <SidebarLink href="/admin/laporan" icon={faFileAlt} label="DATA PENGADUAN" isActive={pathname.startsWith('/admin/laporan')} />
+                    
+                    {/* ===== TAMBAHAN: KELOLA PENGUMUMAN ===== */}
+                    <SidebarLink href="/admin/pengumuman" icon={faBullhorn} label="KELOLA PENGUMUMAN" isActive={pathname.startsWith('/admin/pengumuman')} />
+                    
                     <SidebarLink href="/admin/kategori" icon={faTags} label="DATA KATEGORI" isActive={pathname.startsWith('/admin/kategori')} />
 
                     {/* Menu Khusus Master Admin */}
