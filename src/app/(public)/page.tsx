@@ -2,15 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-// Asumsi HeroSection sudah responsif dan berada di "@/components/HeroSection"
 import HeroSection from "@/components/HeroSection"; 
-// Asumsi useAuth sudah tersedia di "@/context/AuthContext"
 import { useAuth } from "@/context/AuthContext"; 
 import toast from "react-hot-toast";
 
-// ==========================================================
-// KONSTANTA & STYLE
-// ==========================================================
 const API_BASE_URL = "http://localhost:5000";
 
 const labelStyle = "block mb-1 text-sm font-medium text-[#0060A9]";
@@ -41,7 +36,6 @@ interface Pengumuman {
   id: number;
   judul: string;
   isi: string;
-  // Perbaikan: gunakan string penuh untuk gambar, bukan hanya path relatif
   gambar: string | null; 
   dibuatPada: string;
 }
@@ -55,9 +49,6 @@ const formatDate = (dateString: string) => {
   });
 };
 
-// ==========================================================
-// KOMPONEN UTAMA
-// ==========================================================
 export default function Home() {
   const { user, token, isLoading: authLoading } = useAuth();
 
@@ -97,9 +88,6 @@ export default function Home() {
   const [popupOpen, setPopupOpen] = useState(false);
   const [popupId, setPopupId] = useState<number | null>(null);
 
-  // ==========================================================
-  // SIDE EFFECTS (Fetch Data)
-  // ==========================================================
   useEffect(() => {
     const fetchKategori = async () => {
       try {
@@ -141,9 +129,6 @@ export default function Home() {
     fetchPengumuman();
   }, []);
 
-  // ==========================================================
-  // HANDLERS
-  // ==========================================================
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) setGambar(e.target.files[0]);
     else setGambar(null);
@@ -274,40 +259,47 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               
               {/* Loop/Map data pengumuman */}
-              {pengumumanList.map((item) => (
-                <div
-                  key={item.id}
-                  // Menggunakan flex-col untuk memastikan elemen terdistribusi dengan baik
-                  className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 flex flex-col transition duration-300 hover:shadow-xl hover:border-[#0060A9]/50"
-                >
-                  <h3 className="text-xl font-semibold text-[#0060A9] mb-3">
-                    {item.judul}
-                  </h3>
-                  
-                  {/* Gambar: Tinggi tetap (h-48) dan object-cover untuk konsistensi di grid */}
-                  {item.gambar && (
-                    <div className="mb-4 overflow-hidden rounded-md">
-                        <img
-                            src={`${API_BASE_URL}${item.gambar}`}
-                            alt={item.judul}
-                            className="w-full h-48 object-cover rounded-md border transform transition duration-500 hover:scale-105"
-                        />
-                    </div>
-                  )}
-                  
-                  {/* flex-grow agar teks mengisi ruang dan tombol tetap di bawah */}
-                  <p className="text-gray-700 whitespace-pre-line grow text-sm line-clamp-3">
-                    {item.isi}
-                  </p>
-                  
-                  <p className="text-xs text-gray-400 mt-4 pt-2 border-t border-gray-100">
-                    Dipublikasikan pada:{" "}
-                    <span className="font-medium text-gray-500">
-                        {formatDate(item.dibuatPada)}
-                    </span>
-                  </p>
-                </div>
-              ))}
+            {pengumumanList.map((item) => (
+  <Link key={item.id} href={`/pengumuman/${item.id}`}>
+    <div
+      className="cursor-pointer bg-white p-6 rounded-xl shadow-lg border border-gray-200 
+      flex flex-col justify-between transition duration-300 hover:shadow-xl hover:border-[#0060A9]/50 
+      hover:scale-[1.02] min-h-[350px]"
+    >
+      
+      {/* Judul */}
+      <h3 className="text-xl font-semibold text-[#0060A9] mb-3 line-clamp-2">
+        {item.judul}
+      </h3>
+
+      {/* Gambar */}
+      {item.gambar && (
+        <div className="mb-4 overflow-hidden rounded-md">
+          <img
+            src={`${API_BASE_URL}${item.gambar}`}
+            alt={item.judul}
+            className="w-full h-40 object-cover rounded-md border"
+          />
+        </div>
+      )}
+
+      {/* Isi preview */}
+      <p className="text-gray-700 whitespace-pre-line text-sm line-clamp-3 mt-auto">
+        {item.isi}
+      </p>
+
+      {/* Waktu */}
+      <p className="text-xs text-gray-400 mt-4 pt-2 border-t border-gray-100">
+        Dipublikasikan pada:{" "}
+        <span className="font-medium text-gray-500">
+          {formatDate(item.dibuatPada)}
+        </span>
+      </p>
+    </div>
+  </Link>
+))}
+
+
             </div>
           ) : (
             <p className="text-center text-gray-500 py-10">
@@ -324,6 +316,50 @@ export default function Home() {
       </section>
 
       <hr className="border-t border-gray-200" />
+      {/* --- BAGIAN PANDUAN --- */}
+<section className="bg-[#F8FAFF] py-16">
+  <div className="container mx-auto max-w-4xl px-6">
+
+    <h2 className="text-3xl font-bold text-[#004A80] text-center mb-4">
+      PANDUAN
+    </h2>
+
+    <p className="text-center text-gray-700 mb-6 leading-relaxed">
+      Halo Warga Kecamatan Junrejo 👋<br/>
+      Terima kasih telah berpartisipasi dalam layanan pengaduan masyarakat.
+      Silakan isi form berikut dengan data yang benar dan lengkap agar laporan Anda segera diproses.
+    </p>
+
+    <ol className="list-decimal pl-6 text-gray-700 leading-relaxed space-y-2">
+      <li>Pastikan pengaduan Anda terkait wilayah Kecamatan Junrejo.</li>
+      <li>Gunakan bahasa yang sopan, jelas, dan ringkas menjelaskan permasalahan.</li>
+      <li>Semua kolom berlabel * wajib diisi.</li>
+      <li>Pilih kategori masalah, dusun, RT, dan RW dari daftar pilihan yang tersedia.</li>
+      <li>Tuliskan detail lokasi agar petugas mudah menindaklanjuti laporan.</li>
+      <li>Lampirkan bukti pendukung seperti foto atau video kondisi lapangan.</li>
+      <li>Hindari mengirim laporan ganda untuk masalah yang sama.</li>
+      <li>
+        Setelah laporan dikirim, Anda akan menerima nomor laporan yang dapat digunakan
+        untuk melacak status melalui fitur <span className="font-semibold text-[#0060A9] underline">Lacak Pengaduan</span>.
+      </li>
+    </ol>
+
+    <div className="mt-6 border-l-4 border-[#0060A9] bg-white p-4 shadow rounded-lg">
+      <h3 className="font-semibold text-[#004A80] mb-2">Contoh Pengisian Singkat:</h3>
+      <p className="text-gray-700 text-sm leading-relaxed">
+        • <b>Kategori:</b> Infrastruktur / Jalan<br/>
+        • <b>Deskripsi:</b> Jalan utama di depan SD Junrejo 2 sudah berlubang cukup dalam dan berbahaya.<br/>
+        • <b>Lokasi:</b> Dusun Krajan, RT 03 / RW 05 – depan SDN Junrejo 2<br/>
+        • <b>Bukti:</b> Foto jalan berlubang
+      </p>
+    </div>
+
+    <p className="mt-6 text-sm text-gray-600 text-center italic">
+      Laporan akan diperiksa dan diverifikasi petugas sebelum diproses.
+    </p>
+  </div>
+</section>
+
 
       {/* --- BAGIAN FORM PENGADUAN --- */}
       <section
@@ -491,7 +527,7 @@ export default function Home() {
       {/* --- POPUP ID PENGADUAN --- */}
       {popupOpen && (
         // Overlay responsif
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[999] p-4">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-999 p-4">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm text-center border-2 border-[#0060A9] animate-fade-in-up">
             <h3 className="text-2xl font-extrabold text-[#0060A9] mb-3">
               🎉 Pengaduan Terkirim!
@@ -500,7 +536,7 @@ export default function Home() {
               Simpan <span className="font-bold">ID Pengaduan</span>{" "}
               berikut untuk melakukan pelacakan:
             </p>
-            <div className="bg-blue-50 border border-[#0060A9] text-[#0060A9] font-extrabold text-2xl py-3 rounded-xl mb-5 break-words">
+            <div className="bg-blue-50 border border-[#0060A9] text-[#0060A9] font-extrabold text-2xl py-3 rounded-xl mb-5 wrap-break-words">
               #{popupId}
             </div>
             <button

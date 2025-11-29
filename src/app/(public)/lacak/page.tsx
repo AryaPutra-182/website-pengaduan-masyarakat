@@ -15,67 +15,81 @@ export default function LacakPage() {
     return (
         <main className="pt-28 min-h-screen bg-transparant relative overflow-hidden">
 
-            {/* Bagian PANDUAN */}
-            <h1 className="text-3xl font-bold text-[#004A80] text-center mb-8">
-                PANDUAN
-            </h1>
-
-            <div className="max-w-3xl mx-auto px-6 mb-12">
-                <p className="text-gray-700 text-center mb-4">
-                    Pada Isi Bagian Dalam Lapor, Hal ini Warga Harus Mengisi Secara Lengkap Data Informasi
-                    Terkait Lokasi Masalah, Kapan Kejadian, Tipe/Kategori Masalah, dan Deskripsi Kejadian.
+            {/* Informasi Intro */}
+            <div className="max-w-4xl mx-auto px-6 mb-10">
+                <h1 className="text-3xl font-bold text-[#004A80] text-center mb-6">
+                    Halo Warga Kecamatan Junrejo 👋
+                </h1>
+                <p className="text-gray-700 text-center leading-relaxed">
+                    Fitur ini digunakan untuk melacak status laporan pengaduan yang telah Anda kirim melalui sistem. 
+                    Dengan fitur ini, Anda dapat mengetahui sejauh mana laporan Anda telah diproses oleh pihak Petugas.
                 </p>
-
-                <ol className="list-decimal pl-6 text-gray-700 leading-relaxed space-y-1">
-                    <li>Pilih Menu Lapor pada Navigasi</li>
-                    <li>Isi Data Pengaduan Anda secara lengkap</li>
-                    <li>Unggah Lampiran Foto (Opsional tapi sangat membantu)</li>
-                    <li>Klik tombol Kirim</li>
-                    <li>Tunggu verifikasi dari Petugas</li>
-                    <li>Pantau status melalui menu Lacak</li>
-                </ol>
             </div>
 
-            {/* Garis biru */}
-            <div className="w-full h-[2px] bg-[#0060A9] opacity-50 mb-12"></div>
+            {/* Panduan Penggunaan */}
+            <div className="max-w-4xl mx-auto px-6 mb-8 bg-[#F8FAFF] rounded-xl p-6 shadow-sm border border-[#0060A9]/20">
+                <h2 className="text-xl font-bold text-[#004A80] mb-3 text-center">
+                    Panduan Penggunaan Fitur Lacak Pengaduan
+                </h2>
 
-            {/* Bagian Lacak Pengaduan */}
+                <h3 className="font-semibold text-[#004A80] mt-4 mb-2">Cara Menggunakan:</h3>
+                <ol className="list-decimal pl-5 text-gray-700 space-y-1">
+                    <li>Masukkan ID Laporan atau Judul Masalah pada kolom pencarian di bagian bawah.</li>
+                    <li>Contoh ID: <span className="font-semibold">#99</span></li>
+                    <li>Contoh Judul: <span className="font-semibold">Jalan Rusak di Depan SD Junrejo 2</span></li>
+                    <li>Tekan ikon pencarian 🔍 atau tombol Enter untuk mulai melacak.</li>
+                </ol>
+
+                <h3 className="font-semibold text-[#004A80] mt-6 mb-2">Sistem Akan Menampilkan:</h3>
+                <ul className="list-disc pl-5 text-gray-700 space-y-1">
+                    <li>Judul Masalah</li>
+                    <li>Deskripsi Masalah</li>
+                    <li>Tanggal Laporan</li>
+                    <li>Lokasi Kejadian</li>
+                    <li>Status Penanganan</li>
+                </ul>
+
+                <h3 className="font-semibold text-[#004A80] mt-6 mb-2">Keterangan Status:</h3>
+                <ul className="list-disc pl-5 text-gray-700 space-y-1">
+                    <li><b>Diterima</b> → Laporan masuk dan menunggu verifikasi.</li>
+                    <li><b>Diverifikasi</b> → Laporan sudah ditinjau petugas.</li>
+                    <li><b>Dalam Proses</b> → Laporan sedang ditangani.</li>
+                    <li><b>Selesai</b> → Masalah telah diselesaikan.</li>
+                    <li><b>Ditolak</b> → Data kurang valid atau di luar kewenangan.</li>
+                </ul>
+
+                <h3 className="font-semibold text-[#004A80] mt-6 mb-2">Catatan:</h3>
+                <p className="text-gray-700 leading-relaxed">
+                    Jika laporan tidak muncul, pastikan ID atau Judul benar. 
+                    Laporan baru mungkin membutuhkan waktu beberapa jam untuk muncul. Jika ditolak, silakan kirim ulang dengan data lebih lengkap atau hubungi petugas.
+                </p>
+            </div>
+
+            {/* GARIS PEMBATAS */}
+            <div className="w-full h-0.5 bg-[#0060A9] opacity-50 mb-10"></div>
+
+            {/* SEARCH */}
             <h2 className="text-2xl font-bold text-[#004A80] text-center mb-6">
-                LACAK PENGADUAN ANDA
+                Lacak Pengaduan Anda
             </h2>
 
             <div className="max-w-xl mx-auto px-6 mb-20">
                 <div className="relative">
                     <input
-    type="text"
-    placeholder="Masukkan ID Pengaduan Anda..."
-    value={searchId}
-    onChange={(e) => setSearchId(e.target.value)}
-    className="
-        w-full 
-        border border-[#0060A9]/60 
-        rounded-full 
-        px-4 py-3 pr-12 
-        outline-none 
-        shadow 
-        text-gray-900
-        placeholder-gray-500
-        bg-white
-        focus:ring-2 focus:ring-[#0060A9] 
-    "
-/>
-                    {/* Ikon Search */}
+                        type="text"
+                        placeholder="Masukkan ID Pengaduan Anda..."
+                        value={searchId}
+                        onChange={(e) => setSearchId(e.target.value)}
+                        className="w-full border border-[#0060A9]/60 rounded-full px-4 py-3 pr-12 outline-none shadow text-gray-900 placeholder-gray-500 bg-white focus:ring-2 focus:ring-[#0060A9]"
+                    />
                     <button
                         onClick={handleSearch}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0060A9]"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 24 24" fill="#0060A9">
-                            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C8.01 14 6 11.99 6 9.5S8.01 5 10.5 5 15 7.01 15 9.5 12.99 14 10.5 14z" />
-                        </svg>
+                        🔍
                     </button>
                 </div>
             </div>
-
         </main>
     );
 }
