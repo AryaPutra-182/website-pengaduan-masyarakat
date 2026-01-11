@@ -90,9 +90,13 @@ const ConfirmationModal = ({ isOpen, title, message, type, onClose, onConfirm, i
 
 // --- HALAMAN UTAMA ---
 
-export default function DetailPengaduanPage({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function DetailPengaduanPage({ params }: PageProps) {
   const router = useRouter();
-  const { id } = params;
+  const id = (params as any).id || "";
 
   const [data, setData] = useState<PengaduanDetail | null>(null);
   const [loading, setLoading] = useState(true);
