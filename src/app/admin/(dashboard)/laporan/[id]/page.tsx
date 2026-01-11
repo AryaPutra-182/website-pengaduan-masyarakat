@@ -1,36 +1,9 @@
 "use client";
 
-import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
-
-interface LampiranItem {
-  id: number;
-  filePath: string;
-}
-
-interface UserInfo {
-  nama_lengkap?: string;
-  nik?: string;
-}
-
-interface KategoriInfo {
-  nama_kategori?: string;
-}
-
-interface PengaduanDetail {
-  id: number;
-  judul?: string;
-  deskripsi?: string;
-  lokasi?: string;
-  status: string;
-  createdAt: string;
-  user?: UserInfo;
-  kategori?: KategoriInfo;
-  lampiran: LampiranItem[];
-}
 
 // --- KOMPONEN MODAL KONFIRMASI ---
 interface ConfirmationModalProps {
@@ -90,15 +63,11 @@ const ConfirmationModal = ({ isOpen, title, message, type, onClose, onConfirm, i
 
 // --- HALAMAN UTAMA ---
 
-interface PageProps {
-  params: Promise<{ id: string }>;
-}
-
-export default function DetailPengaduanPage({ params }: PageProps) {
+export default function DetailPengaduanPage({ params }: any) {
   const router = useRouter();
-  const id = (params as any).id || "";
+  const { id } = params;
 
-  const [data, setData] = useState<PengaduanDetail | null>(null);
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<string>("");
   const [loadingPdf, setLoadingPdf] = useState(false); 
@@ -114,7 +83,7 @@ export default function DetailPengaduanPage({ params }: PageProps) {
   const [actionLoading, setActionLoading] = useState(false);
 
   // 1. Ambil Data
-  const fetchDetail = useCallback(async () => {
+  const fetchDetail = async () => {
     const token = localStorage.getItem("adminToken");
     const userString = localStorage.getItem("adminUser");
 
@@ -123,7 +92,7 @@ export default function DetailPengaduanPage({ params }: PageProps) {
     try {
       const userObj = JSON.parse(userString);
       setUserRole(userObj.role || "");
-    } catch {
+    } catch (e) {
       console.error("Gagal parsing user data");
     }
 
@@ -135,19 +104,18 @@ export default function DetailPengaduanPage({ params }: PageProps) {
       const result = await res.json();
       if (!result.success) throw new Error(result.message);
 
-      setData(result.data as PengaduanDetail);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Gagal memuat detail pengaduan";
+      setData(result.data);
+    } catch (err) {
       console.error(err);
-      alert(message);
+      alert("Gagal memuat detail pengaduan");
     } finally {
       setLoading(false);
     }
-  }, [id, router]);
+  };
 
   useEffect(() => {
     fetchDetail();
-  }, [fetchDetail]);
+  }, []);
 
  
   const processVerifikasi = async (status: string) => {
@@ -164,9 +132,8 @@ export default function DetailPengaduanPage({ params }: PageProps) {
       
       setModal(prev => ({ ...prev, isOpen: false })); // Tutup modal
       fetchDetail(); // Refresh data
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Gagal update status";
-      alert(message);
+    } catch (err: any) {
+      alert(err.message || "Gagal update status");
     } finally {
       setActionLoading(false);
     }
@@ -186,9 +153,8 @@ export default function DetailPengaduanPage({ params }: PageProps) {
 
       setModal(prev => ({ ...prev, isOpen: false }));
       fetchDetail();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Gagal menyetujui aduan";
-      alert(message);
+    } catch (err: any) {
+      alert(err.message || "Gagal menyetujui aduan");
     } finally {
       setActionLoading(false);
     }
@@ -208,9 +174,8 @@ export default function DetailPengaduanPage({ params }: PageProps) {
 
       setModal(prev => ({ ...prev, isOpen: false }));
       fetchDetail();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Gagal menutup aduan";
-      alert(message);
+    } catch (err: any) {
+      alert(err.message || "Gagal menutup aduan");
     } finally {
       setActionLoading(false);
     }
@@ -279,10 +244,9 @@ export default function DetailPengaduanPage({ params }: PageProps) {
       a.remove(); // Bersihkan elemen
       window.URL.revokeObjectURL(url); // Bersihkan memori
       
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Gagal mencetak PDF";
+    } catch (err: any) {
       console.error(err);
-      alert("Gagal mencetak PDF: " + message);
+      alert("Gagal mencetak PDF: " + err.message);
     } finally {
       setLoadingPdf(false);
     }
@@ -381,7 +345,7 @@ export default function DetailPengaduanPage({ params }: PageProps) {
   <p className="font-semibold text-[#004A80] mb-2">Lampiran</p>
   {data.lampiran && data.lampiran.length > 0 ? (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-      {data.lampiran.map((item, index) => {
+      {data.lampiran.map((item: any, index: number) => {
         // 1. Bersihkan Path URL
         let cleanPath = item.filePath.replace(/\\/g, "/");
         if (!cleanPath.startsWith("/")) cleanPath = "/" + cleanPath;
@@ -415,15 +379,13 @@ export default function DetailPengaduanPage({ params }: PageProps) {
             ) : (
               // === JIKA GAMBAR ===
               <a href={fileUrl} target="_blank" rel="noopener noreferrer">
-                <Image
+                <img
                   src={fileUrl}
                   alt={`Lampiran-${index}`}
-                  fill
-                  sizes="(max-width: 768px) 50vw, 33vw"
-                  className="object-cover transition duration-300 group-hover:scale-110"
+                  className="w-full h-32 object-cover transition duration-300 group-hover:scale-110"
                   onError={(e) => {
-                    const target = e.currentTarget as HTMLImageElement;
-                    target.src = "https://via.placeholder.com/150?text=Gagal+Memuat";
+                    e.currentTarget.src =
+                      "https://via.placeholder.com/150?text=Gagal+Memuat";
                   }}
                 />
                 {/* Overlay Text untuk Gambar */}

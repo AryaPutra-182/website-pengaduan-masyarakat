@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
@@ -28,7 +28,7 @@ export default function DataPengaduanPage() {
   // ==========================
   // FETCH DATA PENGADUAN
   // ==========================
-  const fetchPengaduan = useCallback(async () => {
+  const fetchPengaduan = async () => {
     setIsLoading(true);
     setError(null);
 
@@ -55,17 +55,16 @@ export default function DataPengaduanPage() {
 
       setLaporanList(laporan);
       setTotalPages(result.data.totalPages);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Server error";
-      setError(message);
+    } catch (err: any) {
+      setError(err.message || "Server error");
     } finally {
       setIsLoading(false);
     }
-  }, [page, search, router]);
+  };
 
   useEffect(() => {
     fetchPengaduan();
-  }, [fetchPengaduan]);
+  }, [page, search]);
 
   const formatTanggal = (tgl?: string) => {
     if (!tgl) return "-";
