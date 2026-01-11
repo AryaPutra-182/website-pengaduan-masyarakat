@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
 
 // --- KOMPONEN MODAL KONFIRMASI ---
 interface ConfirmationModalProps {
@@ -65,7 +65,7 @@ const ConfirmationModal = ({ isOpen, title, message, type, onClose, onConfirm, i
 
 export default function DetailPengaduanPage({ params }: any) {
   const router = useRouter();
-  const { id } = params;
+  const id = params.id;
 
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);

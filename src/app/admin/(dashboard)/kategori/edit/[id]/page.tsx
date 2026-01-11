@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast"; 
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
 
 // Style
 const inputStyle =
@@ -116,8 +116,9 @@ export default function EditKategoriPage() {
         const data = result.data.kategori || result.data;
         setNamaKategori(data.nama_kategori);
         setDeskripsi(data.deskripsi || "");
-      } catch (err: any) {
-        setError(err.message || "Gagal memuat data.");
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Gagal memuat data.";
+        setError(message);
       } finally {
         setIsLoadingData(false);
       }
@@ -165,8 +166,9 @@ export default function EditKategoriPage() {
       toast.success("Kategori berhasil diperbarui!"); 
 
       setTimeout(() => router.push("/admin/kategori"), 1000);
-    } catch (err: any) {
-      setError(err.message || "Gagal memperbarui kategori.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Gagal memperbarui kategori.";
+      setError(message);
       setIsModalOpen(false);
     } finally {
       setIsUpdating(false);

@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
 import Link from "next/link";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
 
 interface Lampiran {
   id: number;
@@ -28,25 +29,6 @@ export default function RiwayatPage() {
 
   const [isClient, setIsClient] = useState(false);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "pending":
-        return { text: "MENUNGGU VERIFIKASI", bg: "bg-yellow-500" };
-      case "diterima":
-        return { text: "DITERIMA", bg: "bg-blue-500" };
-      case "diproses":
-        return { text: "DIPROSES", bg: "bg-indigo-500" };
-      case "dilaksanakan":
-        return { text: "DIPERBAIKI", bg: "bg-green-600" };
-      case "selesai":
-        return { text: "SELESAI", bg: "bg-gray-600" };
-      case "ditolak":
-        return { text: "DITOLAK", bg: "bg-red-600" };
-      default:
-        return { text: "TIDAK DIKETAHUI", bg: "bg-gray-400" };
-    }
-  };
-
   useEffect(() => {
     setIsClient(true);
 
@@ -69,8 +51,9 @@ export default function RiwayatPage() {
         }
 
         setRiwayat(Array.isArray(result.data) ? result.data : []);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Gagal mengambil riwayat pengaduan.";
+        setError(message);
       } finally {
         setLoading(false);
       }
@@ -128,18 +111,24 @@ export default function RiwayatPage() {
       />
     </video>
   ) : (
-    <img
+    <Image
       src={`${API_BASE_URL}${item.lampiran[0].filePath.replace(/\\/g, "/")}`}
+      alt={item.judul || "Lampiran"}
+      width={400}
+      height={200}
       className="w-full h-full object-cover transition duration-500 group-hover:scale-110"
       onError={(e) => {
-        e.currentTarget.src =
-          "https://via.placeholder.com/300x200?text=Gagal+Memuat";
+        const target = e.currentTarget as HTMLImageElement;
+        target.src = "https://via.placeholder.com/300x200?text=Gagal+Memuat";
       }}
     />
   )
 ) : (
-  <img
+  <Image
     src="/placeholder-image.png"
+    alt="Placeholder"
+    width={400}
+    height={200}
     className="w-full h-full object-cover"
   />
 )}

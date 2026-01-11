@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/admin/Sidebar';
-import Link from 'next/link';
 
 interface AdminUser { id: number; nama: string; role: 'admin' | 'master_admin' | 'pimpinan'; }
 

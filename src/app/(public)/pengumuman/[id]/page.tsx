@@ -1,14 +1,23 @@
     "use client";
 
     import { useState, useEffect, use } from "react";
+    import Image from "next/image";
     import Link from "next/link";
 
-    const API_BASE_URL = "http://localhost:5000";
+    const API_BASE_URL =  process.env.NEXT_PUBLIC_API_BASE;
 
-    export default function DetailPengumuman({ params }: { params: Promise<{ id: string }> }) {
+        interface PengumumanDetail {
+            id: number;
+            judul: string;
+            isi: string;
+            dibuatPada: string;
+            gambar?: string | null;
+        }
+
+        export default function DetailPengumuman({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params); // ⬅️ cara terbaru (menghapus warning)
 
-    const [detail, setDetail] = useState<any>(null);
+        const [detail, setDetail] = useState<PengumumanDetail | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -42,13 +51,18 @@
             Dipublikasikan: {new Date(detail.dibuatPada).toLocaleDateString("id-ID")}
         </p>
 
-        {detail.gambar && (
-            <img
-            src={`${API_BASE_URL}${detail.gambar}`}
-            alt="gambar"
-            className="w-full max-h-[350px] object-cover rounded-xl shadow mb-6"
-            />
-        )}
+                {detail.gambar && (
+                        <div className="w-full max-h-[350px] relative rounded-xl shadow mb-6 overflow-hidden">
+                            <Image
+                                src={`${API_BASE_URL}${detail.gambar}`}
+                                alt={detail.judul || "Pengumuman"}
+                                fill
+                                sizes="(max-width: 768px) 100vw, 80vw"
+                                className="object-cover"
+                                priority
+                            />
+                        </div>
+                )}
 
         <p className="text-lg leading-relaxed whitespace-pre-line text-gray-700">
             {detail.isi}

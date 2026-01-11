@@ -1,4 +1,3 @@
-import Link from 'next/link';
 
 const labelStyle = "block text-xs font-medium text-gray-500 mb-1 ml-4";
 const inputStyle = "w-full p-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-900 text-gray-900";

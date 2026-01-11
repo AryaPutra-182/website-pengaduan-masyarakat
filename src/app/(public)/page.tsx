@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import HeroSection from "@/components/HeroSection"; 
 import { useAuth } from "@/context/AuthContext"; 
 import toast from "react-hot-toast";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
 
 const labelStyle = "block mb-1 text-sm font-medium text-[#0060A9]";
 const inputStyle =
@@ -221,7 +222,7 @@ export default function Home() {
       setGambar(null);
       const fileInput = document.getElementById("bukti") as HTMLInputElement;
       if (fileInput) fileInput.value = "";
-    } catch (err) {
+    } catch {
       toast.error("Tidak dapat terhubung ke server atau terjadi kesalahan.");
     } finally {
       setFormLoading(false);
@@ -274,11 +275,14 @@ export default function Home() {
 
       {/* Gambar */}
       {item.gambar && (
-        <div className="mb-4 overflow-hidden rounded-md">
-          <img
+        <div className="mb-4 overflow-hidden rounded-md relative h-40">
+          <Image
             src={`${API_BASE_URL}${item.gambar}`}
             alt={item.judul}
-            className="w-full h-40 object-cover rounded-md border"
+            fill
+            sizes="(max-width: 1024px) 100vw, 33vw"
+            className="object-cover rounded-md border"
+            priority={false}
           />
         </div>
       )}
