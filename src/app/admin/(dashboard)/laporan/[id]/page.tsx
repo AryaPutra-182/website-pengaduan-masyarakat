@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+
+
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
 
@@ -63,16 +65,21 @@ const ConfirmationModal = ({ isOpen, title, message, type, onClose, onConfirm, i
 
 // --- HALAMAN UTAMA ---
 
-export default function DetailPengaduanPage({ params }: any) {
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export default function DetailPengaduanPage({ params }: Props) {
   const router = useRouter();
-  const id = params.id;
+
+
+  const { id } = React.use(params);
 
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<string>("");
-  const [loadingPdf, setLoadingPdf] = useState(false); 
-  
-  // State untuk Modal
+  const [userRole, setUserRole] = useState("");
+  const [loadingPdf, setLoadingPdf] = useState(false);
+
   const [modal, setModal] = useState({
     isOpen: false,
     title: "",
@@ -82,19 +89,19 @@ export default function DetailPengaduanPage({ params }: any) {
   });
   const [actionLoading, setActionLoading] = useState(false);
 
-  // 1. Ambil Data
   const fetchDetail = async () => {
     const token = localStorage.getItem("adminToken");
     const userString = localStorage.getItem("adminUser");
 
-    if (!token || !userString) return router.push("/admin/login");
+    if (!token || !userString) {
+      router.push("/admin/login");
+      return;
+    }
 
     try {
       const userObj = JSON.parse(userString);
       setUserRole(userObj.role || "");
-    } catch (e) {
-      console.error("Gagal parsing user data");
-    }
+    } catch {}
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/admin/pengaduan/${id}`, {
@@ -105,8 +112,7 @@ export default function DetailPengaduanPage({ params }: any) {
       if (!result.success) throw new Error(result.message);
 
       setData(result.data);
-    } catch (err) {
-      console.error(err);
+    } catch {
       alert("Gagal memuat detail pengaduan");
     } finally {
       setLoading(false);
