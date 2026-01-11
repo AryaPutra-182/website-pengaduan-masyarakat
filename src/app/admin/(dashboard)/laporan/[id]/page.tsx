@@ -119,7 +119,7 @@ export default function DetailPengaduanPage({ params }: { params: { id: string }
     try {
       const userObj = JSON.parse(userString);
       setUserRole(userObj.role || "");
-    } catch (e) {
+    } catch {
       console.error("Gagal parsing user data");
     }
 
