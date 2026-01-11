@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = process.env.API_BASE || 'http://localhost:5000';
 
 // Style Reusable
 const labelStyle = "block mb-1 text-sm font-medium text-[#0060A9]";
@@ -63,8 +63,9 @@ export default function TambahAdminPage() {
                 alert('Admin baru berhasil ditambahkan!');
                 router.push('/admin/kelola-admin');
             }
-        } catch (err: any) {
-            setError(err.message || 'Terjadi kesalahan server.');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Terjadi kesalahan server.';
+            setError(message);
         } finally {
             setIsLoading(false);
         }
@@ -138,7 +139,7 @@ export default function TambahAdminPage() {
                             <option value="master_admin">Master Admin</option>
                         </select>
                         <p className="text-xs text-gray-500 mt-1">
-                            *Pimpinan berhak menyetujui aduan agar "Dilaksanakan".
+                            *Pimpinan berhak menyetujui aduan agar &quot;Dilaksanakan&quot;.
                         </p>
                     </div>
 

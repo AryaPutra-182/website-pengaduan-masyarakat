@@ -1,9 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = process.env.API_BASE || 'http://localhost:5000';
+
+interface LampiranItem {
+  id: number;
+  filePath: string;
+}
+
+interface UserInfo {
+  nama_lengkap?: string;
+  nik?: string;
+}
+
+interface KategoriInfo {
+  nama_kategori?: string;
+}
+
+interface PengaduanDetail {
+  id: number;
+  judul?: string;
+  deskripsi?: string;
+  lokasi?: string;
+  status: string;
+  createdAt: string;
+  user?: UserInfo;
+  kategori?: KategoriInfo;
+  lampiran: LampiranItem[];
+}
 
 // --- KOMPONEN MODAL KONFIRMASI ---
 interface ConfirmationModalProps {
@@ -63,11 +90,11 @@ const ConfirmationModal = ({ isOpen, title, message, type, onClose, onConfirm, i
 
 // --- HALAMAN UTAMA ---
 
-export default function DetailPengaduanPage({ params }: any) {
+export default function DetailPengaduanPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { id } = params;
 
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<PengaduanDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<string>("");
   const [loadingPdf, setLoadingPdf] = useState(false); 
@@ -83,7 +110,7 @@ export default function DetailPengaduanPage({ params }: any) {
   const [actionLoading, setActionLoading] = useState(false);
 
   // 1. Ambil Data
-  const fetchDetail = async () => {
+  const fetchDetail = useCallback(async () => {
     const token = localStorage.getItem("adminToken");
     const userString = localStorage.getItem("adminUser");
 
@@ -104,18 +131,19 @@ export default function DetailPengaduanPage({ params }: any) {
       const result = await res.json();
       if (!result.success) throw new Error(result.message);
 
-      setData(result.data);
-    } catch (err) {
+      setData(result.data as PengaduanDetail);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Gagal memuat detail pengaduan";
       console.error(err);
-      alert("Gagal memuat detail pengaduan");
+      alert(message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, router]);
 
   useEffect(() => {
     fetchDetail();
-  }, []);
+  }, [fetchDetail]);
 
  
   const processVerifikasi = async (status: string) => {
@@ -132,8 +160,9 @@ export default function DetailPengaduanPage({ params }: any) {
       
       setModal(prev => ({ ...prev, isOpen: false })); // Tutup modal
       fetchDetail(); // Refresh data
-    } catch (err: any) {
-      alert(err.message || "Gagal update status");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Gagal update status";
+      alert(message);
     } finally {
       setActionLoading(false);
     }
@@ -153,8 +182,9 @@ export default function DetailPengaduanPage({ params }: any) {
 
       setModal(prev => ({ ...prev, isOpen: false }));
       fetchDetail();
-    } catch (err: any) {
-      alert(err.message || "Gagal menyetujui aduan");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Gagal menyetujui aduan";
+      alert(message);
     } finally {
       setActionLoading(false);
     }
@@ -174,8 +204,9 @@ export default function DetailPengaduanPage({ params }: any) {
 
       setModal(prev => ({ ...prev, isOpen: false }));
       fetchDetail();
-    } catch (err: any) {
-      alert(err.message || "Gagal menutup aduan");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Gagal menutup aduan";
+      alert(message);
     } finally {
       setActionLoading(false);
     }
@@ -244,9 +275,10 @@ export default function DetailPengaduanPage({ params }: any) {
       a.remove(); // Bersihkan elemen
       window.URL.revokeObjectURL(url); // Bersihkan memori
       
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Gagal mencetak PDF";
       console.error(err);
-      alert("Gagal mencetak PDF: " + err.message);
+      alert("Gagal mencetak PDF: " + message);
     } finally {
       setLoadingPdf(false);
     }
@@ -345,7 +377,7 @@ export default function DetailPengaduanPage({ params }: any) {
   <p className="font-semibold text-[#004A80] mb-2">Lampiran</p>
   {data.lampiran && data.lampiran.length > 0 ? (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-      {data.lampiran.map((item: any, index: number) => {
+      {data.lampiran.map((item, index) => {
         // 1. Bersihkan Path URL
         let cleanPath = item.filePath.replace(/\\/g, "/");
         if (!cleanPath.startsWith("/")) cleanPath = "/" + cleanPath;
@@ -379,13 +411,15 @@ export default function DetailPengaduanPage({ params }: any) {
             ) : (
               // === JIKA GAMBAR ===
               <a href={fileUrl} target="_blank" rel="noopener noreferrer">
-                <img
+                <Image
                   src={fileUrl}
                   alt={`Lampiran-${index}`}
-                  className="w-full h-32 object-cover transition duration-300 group-hover:scale-110"
+                  fill
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                  className="object-cover transition duration-300 group-hover:scale-110"
                   onError={(e) => {
-                    e.currentTarget.src =
-                      "https://via.placeholder.com/150?text=Gagal+Memuat";
+                    const target = e.currentTarget as HTMLImageElement;
+                    target.src = "https://via.placeholder.com/150?text=Gagal+Memuat";
                   }}
                 />
                 {/* Overlay Text untuk Gambar */}

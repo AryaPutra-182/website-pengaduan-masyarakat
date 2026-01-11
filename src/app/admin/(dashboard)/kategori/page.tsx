@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast"; 
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = process.env.API_BASE || 'http://localhost:5000';
 
 interface Kategori {
   id: number;
@@ -35,7 +35,7 @@ const DeleteModal = ({ isOpen, categoryName, onClose, onConfirm, isLoading }: De
           
           <h3 className="mb-2 text-xl font-bold text-gray-800">Hapus Kategori?</h3>
           <p className="text-gray-500 text-sm">
-            Kategori <span className="font-bold text-gray-800">"{categoryName}"</span> akan dihapus permanen.
+            Kategori <span className="font-bold text-gray-800">&quot;{categoryName}&quot;</span> akan dihapus permanen.
           </p>
         </div>
         
@@ -93,7 +93,7 @@ export default function DataKategoriPage() {
       } else {
         setError(result.message || "Gagal mengambil data kategori.");
       }
-    } catch (err) {
+    } catch {
       setError("Tidak dapat terhubung ke server.");
     } finally {
       setIsLoading(false);
@@ -139,8 +139,9 @@ export default function DataKategoriPage() {
       setKategoriList(prev => prev.filter(k => k.id !== id));
       setDeleteModal({ isOpen: false, id: 0, name: "" }); // Tutup modal
 
-    } catch (error: any) { 
-      toast.error(error.message);
+    } catch (error: unknown) { 
+      const message = error instanceof Error ? error.message : "Gagal menghapus kategori.";
+      toast.error(message);
     } finally {
       setIsDeleting(false);
     }

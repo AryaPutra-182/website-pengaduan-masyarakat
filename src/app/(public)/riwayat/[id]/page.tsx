@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -74,8 +75,9 @@ export default function DetailRiwayatPage() {
         if (!res.ok) throw new Error(result.message);
 
         setData(result.data);
-      } catch (err: any) {
-        setError(err.message || "Gagal memuat detail.");
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Gagal memuat detail.";
+        setError(message);
       } finally {
         setLoading(false);
       }
@@ -147,9 +149,11 @@ export default function DetailRiwayatPage() {
         </video>
       ) : (
         // 🖼 GAMBAR
-        <img
+        <Image
           src={url}
           alt={`Lampiran-${index}`}
+          width={320}
+          height={128}
           className="w-full h-32 object-cover transition duration-300 group-hover:scale-110 cursor-pointer"
           onClick={() => window.open(url, "_blank")}
           onError={(e) =>

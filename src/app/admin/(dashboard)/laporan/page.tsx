@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = process.env.API_BASE || 'http://localhost:5000';
 
 interface PengaduanRow {
   id: number;
@@ -28,7 +28,7 @@ export default function DataPengaduanPage() {
   // ==========================
   // FETCH DATA PENGADUAN
   // ==========================
-  const fetchPengaduan = async () => {
+  const fetchPengaduan = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
@@ -55,16 +55,17 @@ export default function DataPengaduanPage() {
 
       setLaporanList(laporan);
       setTotalPages(result.data.totalPages);
-    } catch (err: any) {
-      setError(err.message || "Server error");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Server error";
+      setError(message);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [page, search, router]);
 
   useEffect(() => {
     fetchPengaduan();
-  }, [page, search]);
+  }, [fetchPengaduan]);
 
   const formatTanggal = (tgl?: string) => {
     if (!tgl) return "-";

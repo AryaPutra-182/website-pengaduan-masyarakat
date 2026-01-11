@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = process.env.API_BASE || 'http://localhost:5000';
 
 // Interface sesuai data dari API
 interface AdminData {
@@ -45,9 +45,10 @@ export default function KelolaAdminPage() {
         } else {
           throw new Error(result.message || 'Gagal mengambil data admin');
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Gagal terhubung ke server.';
         console.error(err);
-        setError(err.message || 'Gagal terhubung ke server.');
+        setError(message);
       } finally {
         setIsLoading(false);
       }
@@ -78,7 +79,7 @@ export default function KelolaAdminPage() {
       } else {
         alert(result.message || 'Gagal menghapus admin.');
       }
-    } catch (err) {
+    } catch {
       alert('Terjadi kesalahan saat menghapus admin.');
     }
   };

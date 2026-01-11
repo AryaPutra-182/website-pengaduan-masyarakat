@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = process.env.API_BASE || 'http://localhost:5000';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -129,8 +129,9 @@ export default function TambahKategoriPage() {
       setIsModalOpen(false); // Tutup modal
       router.push("/admin/kategori");
 
-    } catch (err: any) {
-      setError(err.message || "Tidak dapat terhubung ke server.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Tidak dapat terhubung ke server.";
+      setError(message);
       setIsModalOpen(false); // Tutup modal jika error agar user bisa perbaiki input
     } finally {
       setLoading(false);

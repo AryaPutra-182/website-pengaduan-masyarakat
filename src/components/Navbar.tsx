@@ -10,9 +10,6 @@ import {
   faUser,
   faBars,
   faXmark,
-  faChevronDown,
-  faFileSignature,
-  faSearch,
   faClockRotateLeft,
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
@@ -52,7 +49,7 @@ const Navbar = () => {
     router.push("/");
   };
 
-  const handleAnchorClick = (e: any, href: string) => {
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     const targetId = href.split("#")[1];
     if (pathname === "/") {
       e.preventDefault();

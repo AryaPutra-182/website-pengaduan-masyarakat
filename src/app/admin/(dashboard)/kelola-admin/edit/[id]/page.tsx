@@ -5,12 +5,19 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = process.env.API_BASE || 'http://localhost:5000';
 
 // Style Reusable
 const labelStyle = "block mb-1 text-sm font-medium text-[#0060A9]";
 const inputStyle = "w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:border-[#0060A9] focus:ring-1 focus:ring-[#0060A9] bg-white";
 const buttonBlueCapsule = "rounded-full bg-[#0060A9] px-8 py-2.5 text-sm font-semibold text-white transition hover:bg-[#004a80] disabled:bg-gray-400";
+
+interface AdminRecord {
+  id: number;
+  nama_lengkap: string;
+  username: string;
+  role: string;
+}
 
 // ==========================================================
 // 1. KOMPONEN MODAL KONFIRMASI (REUSABLE)
@@ -98,7 +105,12 @@ export default function EditAdminPage() {
         const result = await res.json();
 
         if (result.success) {
-            const currentAdmin = result.data.find((a: any) => a.id === Number(id));
+            const admins: AdminRecord[] = Array.isArray(result.data)
+              ? result.data
+              : Array.isArray(result.data?.admins)
+                ? result.data.admins
+                : [];
+            const currentAdmin = admins.find((a) => a.id === Number(id));
             if (currentAdmin) {
                 setNamaLengkap(currentAdmin.nama_lengkap);
                 setUsername(currentAdmin.username);
@@ -111,9 +123,10 @@ export default function EditAdminPage() {
             throw new Error(result.message);
         }
 
-      } catch (err) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Gagal memuat data admin";
         console.error(err);
-        toast.error("Gagal memuat data admin");
+        toast.error(message);
       } finally {
         setIsLoadingData(false);
       }
@@ -142,7 +155,7 @@ export default function EditAdminPage() {
         return;
     }
 
-    const updateData: any = {
+    const updateData: Partial<Pick<AdminRecord, "nama_lengkap" | "username" | "role">> & { password?: string } = {
         nama_lengkap: namaLengkap,
         username: username,
         role: role
@@ -174,8 +187,9 @@ export default function EditAdminPage() {
         router.push("/admin/kelola-admin");
       }, 1000);
 
-    } catch (err: any) {
-      toast.error(err.message || "Terjadi kesalahan server");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Terjadi kesalahan server";
+      toast.error(message);
       setIsModalOpen(false);
     } finally {
       setIsUpdating(false);

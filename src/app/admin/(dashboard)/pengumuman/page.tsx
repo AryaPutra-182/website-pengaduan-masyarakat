@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = process.env.API_BASE || 'http://localhost:5000';
 
 // Interface Data
 interface Pengumuman {
@@ -100,9 +100,10 @@ export default function ListPengumuman() {
 
         const result = await response.json();
         setData(result.data || []);
-      } catch (error) {
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Gagal memuat data pengumuman.";
         console.error(error);
-        toast.error("Gagal memuat data pengumuman.");
+        toast.error(message);
       } finally {
         setLoading(false);
       }
@@ -146,9 +147,10 @@ export default function ListPengumuman() {
       toast.success("Pengumuman berhasil dihapus.");
       setDeleteModal({ isOpen: false, itemId: 0 }); // Tutup modal
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Gagal menghapus.";
       console.error("Error menghapus:", error);
-      toast.error(`Gagal: ${error.message}`);
+      toast.error(`Gagal: ${message}`);
     } finally {
       setIsDeleting(false);
     }

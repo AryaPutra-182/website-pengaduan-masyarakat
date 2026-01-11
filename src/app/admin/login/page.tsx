@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = process.env.API_BASE || 'http://localhost:5000';
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -40,7 +40,7 @@ export default function AdminLogin() {
 
       // Redirect setelah login
       router.push("/admin/dashboard");
-    } catch (err) {
+    } catch {
       setError("Tidak dapat terhubung ke server.");
     } finally {
       setLoading(false);

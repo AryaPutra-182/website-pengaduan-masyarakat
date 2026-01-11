@@ -1,10 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import toast from "react-hot-toast"; // Gunakan Toast untuk notifikasi
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = process.env.API_BASE || 'http://localhost:5000';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -105,8 +106,9 @@ export default function EditPengumumanPage() {
         setIsi(result.data.isi);
         setExistingImageUrl(result.data.gambar);
 
-      } catch (error: any) {
-        toast.error(error.message);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Gagal memuat data pengumuman";
+        toast.error(message);
       } finally {
         setLoading(false);
       }
@@ -163,9 +165,10 @@ export default function EditPengumumanPage() {
       toast.success("Perubahan berhasil disimpan!");
       router.push("/admin/pengumuman");
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Gagal menyimpan perubahan.";
       console.error(error);
-      toast.error(`Gagal: ${error.message}`);
+      toast.error(`Gagal: ${message}`);
       setIsModalOpen(false);
     } finally {
       setSubmitting(false);
@@ -231,11 +234,15 @@ export default function EditPengumumanPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Gambar Saat Ini
               </label>
-              <img
-                src={`${API_BASE_URL}${existingImageUrl.replace(/\\/g, "/")}`}
-                alt="Gambar Pengumuman"
-                className="w-full max-w-xs h-auto rounded-md border border-gray-300 shadow-sm"
-              />
+              <div className="relative w-full max-w-xs h-48 rounded-md overflow-hidden border border-gray-300 shadow-sm">
+                <Image
+                  src={`${API_BASE_URL}${existingImageUrl.replace(/\\/g, "/")}`}
+                  alt="Gambar Pengumuman"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover"
+                />
+              </div>
             </div>
           )}
 

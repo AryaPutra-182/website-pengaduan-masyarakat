@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast"; // 1. Import Toast
 
+const API_BASE_URL = process.env.API_BASE || 'http://localhost:5000';
+
 interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -101,7 +103,7 @@ export default function CreatePengumuman() {
       form.append("isi", isi);
       if (file) form.append("gambar", file);
 
-      const response = await fetch("http://localhost:5000/api/pengumuman", {
+      const response = await fetch(`${API_BASE_URL}/api/pengumuman`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -121,9 +123,10 @@ export default function CreatePengumuman() {
       toast.success("Pengumuman berhasil diterbitkan!"); // Notifikasi hijau di atas
       router.push("/admin/pengumuman");
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Gagal membuat pengumuman.";
       console.error("Error submit pengumuman:", error);
-      toast.error(`Gagal: ${error.message}`);
+      toast.error(`Gagal: ${message}`);
       setIsModalOpen(false); 
     } finally {
       setLoading(false);

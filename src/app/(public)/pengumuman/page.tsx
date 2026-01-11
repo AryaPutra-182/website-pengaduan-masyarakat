@@ -1,18 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = process.env.API_BASE || 'http://localhost:5000';
+
+interface Pengumuman {
+  id: number;
+  judul: string;
+  isi: string;
+  gambar?: string | null;
+  dibuatPada?: string;
+}
 
 export default function PengumumanPage() {
-  const [list, setList] = useState([]);
+  const [list, setList] = useState<Pengumuman[]>([]);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/pengumuman`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) setList(data.data);
+        if (data.success) setList(Array.isArray(data.data) ? data.data : []);
       });
   }, []);
 
@@ -25,7 +34,7 @@ export default function PengumumanPage() {
 
       {/* CARD LIST */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-  {list.map((item: any) => (
+  {list.map((item) => (
     <Link key={item.id} href={`/pengumuman/${item.id}`}>
       <div
         className="cursor-pointer bg-white flex flex-col p-6 rounded-xl shadow-lg 
@@ -40,11 +49,16 @@ export default function PengumumanPage() {
 
         {/* Gambar */}
         {item.gambar && (
-          <img
-            src={`${API_BASE_URL}${item.gambar}`}
-            className="w-full h-40 object-cover rounded-md border mb-4"
-            alt="gambar"
-          />
+          <div className="w-full h-40 mb-4 overflow-hidden rounded-md border relative">
+            <Image
+              src={`${API_BASE_URL}${item.gambar}`}
+              alt={item.judul || "Pengumuman"}
+              fill
+              sizes="(max-width: 1024px) 100vw, 33vw"
+              className="object-cover"
+              priority={false}
+            />
+          </div>
         )}
 
         {/* Isi preview */}

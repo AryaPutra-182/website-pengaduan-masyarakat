@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -14,11 +14,12 @@ import {
     faChartLine, 
     faBullhorn 
 } from '@fortawesome/free-solid-svg-icons';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 interface AdminUser { id: number; nama: string; role: 'admin' | 'master_admin'| 'pimpinan'; }
 
 // Komponen Link Sidebar Helper
-const SidebarLink = ({ href, icon, label, isActive }: { href: string; icon: any; label: string; isActive: boolean }) => (
+const SidebarLink = ({ href, icon, label, isActive }: { href: string; icon: IconDefinition; label: string; isActive: boolean }) => (
     <li>
         <Link
             href={href}
@@ -40,6 +41,12 @@ const Sidebar = () => {
     const pathname = usePathname();
     const [userRole, setUserRole] = useState<AdminUser['role'] | null>(null);
 
+    const handleLogout = useCallback(() => {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminUser');
+        router.replace('/admin/login');
+    }, [router]);
+
     useEffect(() => {
         const adminUserString = localStorage.getItem('adminUser');
         if (adminUserString) {
@@ -48,13 +55,7 @@ const Sidebar = () => {
                 setUserRole(adminUserData.role);
             } catch (error) { console.error("Gagal parse admin user:", error); handleLogout(); }
         }
-    }, []);
-
-    const handleLogout = () => {
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminUser');
-        router.replace('/admin/login');
-    };
+    }, [handleLogout]);
 
     return (
         // UBAH DI SINI: Ganti bg-[#005086] menjadi bg-[#0096FF] (Biru Cerah)
